@@ -1,0 +1,46 @@
+# Read the full assignment requirements to identify specific chart types
+print('--- Full Assignment Requirements for Visualization ---\n')
+# Filter for sections likely containing visualization instructions
+for para in full_text:
+    if any(keyword in para.lower() for keyword in ['visual', 'chart', 'plot', 'graph', 'analysis', 'trend']):
+        print(para)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Set a clean style
+sns.set_theme(style="whitegrid")
+
+# 1. Sales by Month (Line Chart)
+plt.figure(figsize=(10, 6))
+sales_by_month = df.groupby('Month')['Sales'].sum().reset_index()
+sns.lineplot(data=sales_by_month, x='Month', y='Sales', marker='o', markersize=8, color='#e74c3c', linewidth=2.5)
+plt.title('Sales by Month', fontsize=15)
+plt.xticks(range(1, 13))
+plt.show()
+
+# 2. Sales by Product (Bar Chart) - Removed Top 15 label, mean line, and price labels
+plt.figure(figsize=(12, 9))
+product_sales = df.groupby('Product')['Sales'].sum().sort_values(ascending=False).head(15)
+sns.barplot(x=product_sales.values, y=product_sales.index, palette='husl', hue=product_sales.index, legend=False)
+
+plt.title('Total Sales by Product', fontsize=15)
+plt.xlabel('Total Sales ($)')
+plt.show()
+
+# 3. Sales by City (Bar Chart)
+plt.figure(figsize=(10, 6))
+city_sales = df.groupby('City')['Sales'].sum().sort_values(ascending=False)
+sns.barplot(x=city_sales.values, y=city_sales.index, palette='magma', hue=city_sales.index, legend=False)
+plt.title('Total Sales by City', fontsize=15)
+plt.xlabel('Total Sales ($)')
+plt.show()
+
+# 4. Sales by Hour (Bar Chart)
+plt.figure(figsize=(12, 6))
+hourly_data = df.groupby('Hour')['Sales'].count().reset_index()
+sns.barplot(data=hourly_data, x='Hour', y='Sales', palette='coolwarm', hue='Hour', legend=False)
+plt.title('Number of Orders by Hour (Sales by Hour)', fontsize=15)
+plt.xlabel('Hour (0-23)')
+plt.ylabel('Order Count')
+plt.show()
