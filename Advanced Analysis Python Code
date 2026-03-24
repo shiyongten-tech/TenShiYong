@@ -1,0 +1,50 @@
+import pandas as pd
+
+sales_df = pd.read_csv('/content/Sales Data.csv')
+display(sales_df.head())
+from itertools import combinations
+
+# Drop rows with NaN values in 'Order ID' or 'Product' columns
+sales_df_cleaned = sales_df.dropna(subset=['Order ID', 'Product']).copy()
+
+# Group products by Order ID
+orders_products = sales_df_cleaned.groupby('Order ID')['Product'].apply(list)
+
+# Filter orders with more than one product
+multi_product_orders = orders_products[orders_products.apply(len) > 1]
+
+# Generate combinations for each order and flatten the list
+product_combinations = []
+for products_in_order in multi_product_orders:
+    # Sort products to treat ('A', 'B') and ('B', 'A') as the same combination
+    sorted_products = sorted(products_in_order)
+    product_combinations.extend(list(combinations(sorted_products, 2)))
+
+# Convert to DataFrame for easier counting
+combinations_df = pd.DataFrame(product_combinations, columns=['Product1', 'Product2'])
+
+# Count the frequency of each combination
+# Create a 'Combination' column for display
+combinations_df['Combination'] = combinations_df.apply(lambda row: f"{row['Product1']} & {row['Product2']}", axis=1)
+
+# Count frequencies of each unique combination
+frequent_combinations = combinations_df['Combination'].value_counts().reset_index()
+frequent_combinations.columns = ['Product Combinations', 'Frequency (Number Of Order)']
+
+# Get the top 5 frequently purchased product pairs
+top_5_combinations = frequent_combinations.head(5)
+
+display(top_5_combinations)
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Create the bar chart
+plt.figure(figsize=(12, 8))
+sns.barplot(x='Frequency (Number Of Order)', y='Product Combinations', data=top_5_combinations, palette='viridis')
+plt.title('Top 5 frequently purchased product pairs (advanced analysis)', fontsize=16)
+plt.xlabel('Frequency (Number Of Order)', fontsize=12)
+plt.ylabel('Product Combinations', fontsize=12)
+plt.xticks(fontsize=10)
+plt.yticks(fontsize=10)
+plt.tight_layout()
+plt.show()
